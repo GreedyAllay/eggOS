@@ -1,0 +1,121 @@
+<head>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<div id="display">
+
+</div>
+
+<script>
+    let mouse = {}
+    let dragging = null
+    let offset = {}
+    let programs = {}
+    let windowcount = 0
+
+    function createWindow(x1, y1, w1, h1, title1, text1) {
+        const window = document.createElement('div')
+        const topbar = document.createElement('div')
+        const contents = document.createElement('div')
+        const icon = document.createElement('div')
+        const title = document.createElement('div')
+
+        const close = document.createElement('div')
+        const closeicon = document.createElement('img')
+
+        window.className = 'window'
+        topbar.className = 'window-topbar'
+        contents.className = 'window-contents'
+
+        window.style = `
+        position: absolute;
+        `
+
+        window.style.left = x1
+        window.style.top = y1
+        window.style.width = w1
+        window.style.height = h1
+
+        close.className = 'window-close'
+        closeicon.className = 'window-close-icon'
+
+        title.textContent = title1
+        contents.textContent = text1
+
+        const ID = windowcount
+        windowcount++
+        programs[ID] = {
+            x: x1,
+            y: y1,
+            w: w1,
+            h: h1,
+            title: title1,
+            text: text1
+        }
+        window.dataset.id = ID
+
+        topbar.addEventListener('mousedown', (e) => {
+            dragging = window
+            offset.x = e.clientX - window.offsetLeft
+            offset.y = e.clientY - window.offsetTop
+        })
+
+        topbar.addEventListener('mouseup', () => {
+            dragging = null
+        })
+
+        close.addEventListener('mouseenter', () => {
+            if(!dragging) {
+            close.style.backgroundColor = 'red'
+            }
+        })
+
+        close.addEventListener('mouseleave', () => {
+            close.style.backgroundColor = '#00000000'
+        })
+
+        close.addEventListener('mouseup', () => {
+            let id = dragging.dataset.id
+            delete programs[id]
+            window.style.animation = 'fading .2s'
+            setTimeout(() => {
+                window.remove()
+            }, 190);
+        })
+
+        closeicon.src = 'resources/close.svg'
+
+        topbar.appendChild(icon)
+        topbar.appendChild(title)
+        close.appendChild(closeicon)
+        topbar.appendChild(close)
+        window.appendChild(topbar)
+        window.appendChild(contents)
+        document.getElementById('display').appendChild(window)
+    }
+
+    createWindow(0, 0, 200, 200, 'sad', 'i am most certainly a window')
+    createWindow(100, 400, 200, 200, 'ssasadex', 'i am most certainly a window too')
+
+    addEventListener('mousemove', (e) => {
+        mouse.x = e.clientX
+        mouse.y = e.clientY
+
+        if(dragging) {
+            let id = dragging.dataset.id
+            programs[id].x = e.clientX - offset.x
+            programs[id].y = e.clientY - offset.y
+
+
+            dragging.style.left = `${programs[id].x}px`
+            dragging.style.top = `${programs[id].y}px`
+        }
+    })
+
+    addEventListener('keypress', (e) => {
+        if(e.key == 'e') {
+            createWindow(mouse.x, mouse.y, 200, 200, 'sad', 'i am most certainly a window')
+        } 
+    })
+    
+</script>

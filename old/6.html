@@ -1,0 +1,202 @@
+<head>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<div id="display">
+
+    <div id="taskbar">
+    </div>
+</div>
+
+<script>
+    let mouse = {}
+    let dragging = null
+    let offset = {}
+    let programs = {}
+    let windowcount = 0
+    let topZind = 1
+    let apps = {
+        sex: {
+            title: "sex application",
+            contents: 'i can apply sex to anything!'
+        },
+        taskmgr: {
+            title: "Task Manager",
+            contents: "<h1>hello daddy</h1>"
+        }
+    }
+    let selecting = false
+
+    function createWindow(x1, y1, w1, h1, title1, text1) {
+        const window = document.createElement('div')
+        const topbar = document.createElement('div')
+        const contents = document.createElement('div')
+        const icon = document.createElement('div')
+        const title = document.createElement('span')
+
+        const close = document.createElement('div')
+        const closeicon = document.createElement('img')
+
+        window.className = 'window'
+        topbar.className = 'window-topbar'
+        contents.className = 'window-contents'
+
+        window.style = `
+        position: absolute;
+        `
+
+        window.style.left = x1
+        window.style.top = y1
+        window.style.width = w1
+        window.style.height = h1
+
+        title.className = 'window-topbar-title'
+
+        close.className = 'window-close'
+        closeicon.className = 'window-close-icon'
+
+        title.textContent = title1
+        contents.innerHTML = text1
+
+        window.style.zIndex = topZind
+
+        const ID = windowcount
+        windowcount++
+        programs[ID] = {
+            x: x1,
+            y: y1,
+            w: w1,
+            h: h1,
+            title: title1,
+            text: text1
+        }
+        window.dataset.id = ID
+
+        topbar.addEventListener('mousedown', (e) => {
+            dragging = window
+            topZind++
+            window.style.zIndex = topZind
+            offset.x = e.clientX - window.offsetLeft
+            offset.y = e.clientY - window.offsetTop
+        })
+
+        contents.addEventListener('mousedown', (e) => {
+            topZind++
+            window.style.zIndex = topZind
+        })
+
+        topbar.addEventListener('mouseup', () => {
+            dragging = null
+        })
+
+        close.addEventListener('mouseenter', () => {
+            if(!dragging) {
+            close.style.backgroundColor = 'red'
+            }
+        })
+
+        close.addEventListener('mouseleave', () => {
+            close.style.backgroundColor = '#00000000'
+        })
+
+        close.addEventListener('mouseup', () => {
+            let id = dragging.dataset.id
+            delete programs[id]
+            window.style.animation = 'fading .2s'
+            setTimeout(() => {
+                window.remove()
+            }, 190);
+        })
+
+        closeicon.src = 'resources/close.svg'
+
+        topbar.appendChild(icon)
+        topbar.appendChild(title)
+        close.appendChild(closeicon)
+        topbar.appendChild(close)
+        window.appendChild(topbar)
+        window.appendChild(contents)
+        document.getElementById('display').appendChild(window)
+    }
+
+    function createTaskbarIcons() {
+        for(let i = 0; i < Object.entries(apps).length; i++) {
+            const thisApp = Object.entries(apps)[i][1]
+            const app = document.createElement('div')
+            const appicon = document.createElement('img')
+            appicon.src = 'resources/close.svg'
+            appicon.className = 'taskbar-app-icon'
+            app.className = 'taskbar-app'
+            app.textContent = name
+            app.addEventListener('click', (e) => {
+                createWindow(0, 0, 200, 200, thisApp.title, thisApp.contents)
+            })
+
+            app.appendChild(appicon)
+            taskbar.appendChild(app)
+        }};
+
+    createTaskbarIcons()
+
+    addEventListener('mousemove', (e) => {
+        mouse.x = e.clientX
+        mouse.y = e.clientY
+
+        if(dragging) {
+            let id = dragging.dataset.id
+            programs[id].x = e.clientX - offset.x
+            programs[id].y = e.clientY - offset.y
+
+
+            dragging.style.left = `${programs[id].x}px`
+            dragging.style.top = `${programs[id].y}px`
+        }
+        if(selecting) {
+            const selection = document.getElementById('desktop-selection')
+            selection.style.width = Math.abs(mouse.x - offset.x)
+            selection.style.height = Math.abs(mouse.y - offset.y)
+            selection.style.left = Math.min(mouse.x, offset.x)
+            selection.style.top = Math.min(mouse.y, offset.y)
+        }
+    })
+
+    addEventListener('keypress', (e) => {
+        if(e.key == 'e') {
+            createWindow(mouse.x, mouse.y, 200, 200, 'sad', 'i am most certainly a window')
+        } 
+    })
+    const display = document.getElementById('display')
+    display.addEventListener('mousedown', (e) => {
+        if(e.target == display) {
+            const oldselection = document.getElementById('desktop-selection')
+            if(oldselection) {
+                oldselection.remove()
+            }
+            const selection = document.createElement('div')
+            selection.id = 'desktop-selection'
+            selection.style.position = 'absolute'
+            selection.style.left = mouse.x
+            selection.style.top = mouse.y
+            offset.x = mouse.x
+            offset.y = mouse.y
+            document.getElementById('display').appendChild(selection)
+            selecting = true  
+        }
+        
+    })
+
+    addEventListener('mouseup', (e) => {
+        selecting = false
+        const selection = document.getElementById('desktop-selection')
+        selection.style.animation = 'fading1 .2s'
+        setTimeout(() => {
+        selection.remove()
+            
+        }, 190);
+    })
+
+    // ------------ FILE SYSTEM ------------ 
+
+    // where is it??
+    
+</script>
